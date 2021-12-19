@@ -34,7 +34,7 @@ export function Logo() {
       <Image>
         <img src={CarLogImg} alt="logo" />
       </Image>
-      <LogoText>Yourcar.</LogoText>
+      <LogoText>Jawancars.</LogoText>
     </LogoContainer>
   );
 }
