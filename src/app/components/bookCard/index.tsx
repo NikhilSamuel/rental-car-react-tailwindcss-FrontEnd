@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import tw from "twin.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,6 +11,7 @@ import { Marginer } from "../marginer";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useState } from "react";
+import { screens } from "../responsive";
 
 const CardContainer = styled.div`
   min-height: 4.3em;
@@ -50,7 +51,7 @@ const Icon = styled.div`
 
 const SmallIcon = styled.span`
   ${tw`
-  text-gray-700 
+  text-gray-500 
   fill-current
   text-xs
   md:text-base
@@ -64,6 +65,7 @@ const Name = styled.span`
   text-xs
   md:text-sm
   cursor-pointer
+  select-none
 `}
 `;
 
@@ -81,10 +83,22 @@ const LineSeperator = styled.span`
 
 const DateCalendar = styled(Calendar)`
   position: absolute;
-  top: 3.5em;
-  left: -2em;
+  top: 2em;
+  left: 0;
   max-width: none;
-`;
+  user-select: none;
+
+  ${({ offset }: any) =>
+    offset &&
+    css`
+      left: -6em;
+    `}
+
+  @media (min-width: ${screens.md}) {
+    top: 3.5em;
+    left: -2em;
+  }
+` as any;
 
 export function BookCard() {
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -126,7 +140,11 @@ export function BookCard() {
         </Icon>
         <Name onClick={openReturnDateCalendar}>Return Date </Name>
         {isReturnDateCalendarOpen && (
-          <DateCalendar value={returnDate} onChange={setReturnDate as any} />
+          <DateCalendar
+            offset={true}
+            value={returnDate}
+            onChange={setReturnDate as any}
+          />
         )}
         <SmallIcon>
           <FontAwesomeIcon
