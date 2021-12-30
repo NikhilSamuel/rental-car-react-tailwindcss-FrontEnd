@@ -35,9 +35,10 @@ const Title = styled.h2`
 const CarsContainer = styled.div`
   ${tw`
   w-full
+  items-center
   flex
   flex-wrap 
-  justify-center
+  justify-center 
   mt-7 
   md:mt-10 
 `}
@@ -81,7 +82,7 @@ export function TopCars() {
           onSlideChange={slideIndexHandler}
           disableButtonsControls
           mouseTracking
-          controlsStrategy="default"
+          controlsStrategy="responsive"
           keyboardNavigation={true}
           items={[
             <Car {...testCar} />,

@@ -2,11 +2,14 @@ export const responsive = {
   0: {
     items: 1,
   },
+  610: {
+    items: 2,
+  },
   1024: {
     items: 3,
   },
   3000: {
-    items: 3,
+    items: 4,
   },
 };
 
