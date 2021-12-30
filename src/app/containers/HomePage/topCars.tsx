@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
 import { Icar } from "../../../typings/car";
 import { Car } from "../../components/car";
+import "react-alice-carousel/lib/alice-carousel.css";
+import AliceCarousel, { EventObject } from "react-alice-carousel";
+import { responsive } from "../../components/responsive/carousel";
 
 const TopCarsContainer = styled.div`
   ${tw`
@@ -41,6 +44,12 @@ const CarsContainer = styled.div`
 `;
 
 export function TopCars() {
+  const [current, setCurrent] = useState(0);
+
+  const slideIndexHandler = (e: EventObject) => {
+    setCurrent(e.item);
+  };
+
   const testCar: Icar = {
     name: "Audi S3 Car",
     mileage: "10km",
@@ -67,9 +76,22 @@ export function TopCars() {
     <TopCarsContainer>
       <Title>Explore our top deals</Title>
       <CarsContainer>
-        <Car {...testCar} />
-        <Car {...testCar} />
-        <Car {...testCar2} />
+        <AliceCarousel
+          activeIndex={current}
+          onSlideChange={slideIndexHandler}
+          disableButtonsControls
+          mouseTracking
+          controlsStrategy="default"
+          keyboardNavigation={true}
+          items={[
+            <Car {...testCar} />,
+            <Car {...testCar2} />,
+            <Car {...testCar} />,
+            <Car {...testCar2} />,
+            <Car {...testCar} />,
+          ]}
+          responsive={responsive}
+        />
       </CarsContainer>
     </TopCarsContainer>
   );
