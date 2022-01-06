@@ -7,6 +7,10 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import AliceCarousel, { EventObject } from "react-alice-carousel";
 import { responsive } from "../../components/responsive/carousel";
 import carService from "../../services/carService";
+import { Dispatch } from "@reduxjs/toolkit";
+import { GetCars_cars } from "../../services/carService/__generated__/GetCars";
+import { setTopCars } from "./slice";
+import { useDispatch } from "react-redux";
 
 const TopCarsContainer = styled.div`
   ${tw`
@@ -45,6 +49,9 @@ const CarsContainer = styled.div`
 `}
 `;
 
+const actionDispatch = (dispatch: Dispatch) => ({
+  setTopCars: (cars: GetCars_cars[]) => dispatch(setTopCars(cars)),
+});
 export function TopCars() {
   const [current, setCurrent] = useState(0);
 
@@ -52,12 +59,15 @@ export function TopCars() {
     setCurrent(e.item);
   };
 
+  const { setTopCars } = actionDispatch(useDispatch());
+
   const fetchTopCars = async () => {
     const cars = await carService.getCars().catch((err) => {
       console.log("error:", err);
     });
 
     console.log("Cars:", cars);
+    if (cars) setTopCars(cars);
   };
 
   const testCar: Icar = {
