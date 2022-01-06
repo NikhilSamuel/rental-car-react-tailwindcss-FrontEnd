@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
-import { Icar } from "../../../typings/car";
 import { Car } from "../../components/car";
 import "react-alice-carousel/lib/alice-carousel.css";
 import AliceCarousel, { EventObject } from "react-alice-carousel";
@@ -10,7 +9,10 @@ import carService from "../../services/carService";
 import { Dispatch } from "@reduxjs/toolkit";
 import { GetCars_cars } from "../../services/carService/__generated__/GetCars";
 import { setTopCars } from "./slice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { makeSelectTopCars } from "./selectors";
+import { createSelector } from "reselect";
+import MoonLoader from "react-spinners/MoonLoader";
 
 const TopCarsContainer = styled.div`
   ${tw`
@@ -49,74 +51,88 @@ const CarsContainer = styled.div`
 `}
 `;
 
+const EmptyCars = styled.div`
+  ${tw`
+  flex
+  items-center
+  justify-center
+  text-sm
+  text-gray-500 
+`}
+`;
+
+const LoadingSection = styled.div`
+  ${tw`
+  flex
+  items-center
+  justify-center
+  text-base
+  text-black
+`}
+`;
+
 const actionDispatch = (dispatch: Dispatch) => ({
   setTopCars: (cars: GetCars_cars[]) => dispatch(setTopCars(cars)),
 });
+
+const stateSelector = createSelector(makeSelectTopCars, (topCars) => ({
+  topCars,
+}));
 export function TopCars() {
   const [current, setCurrent] = useState(0);
+  const [isLoading, setLoading] = useState(false);
 
   const slideIndexHandler = (e: EventObject) => {
     setCurrent(e.item);
   };
 
+  const { topCars } = useSelector(stateSelector);
   const { setTopCars } = actionDispatch(useDispatch());
 
   const fetchTopCars = async () => {
+    setLoading(true);
     const cars = await carService.getCars().catch((err) => {
       console.log("error:", err);
     });
 
     console.log("Cars:", cars);
     if (cars) setTopCars(cars);
-  };
-
-  const testCar: Icar = {
-    name: "Audi S3 Car",
-    mileage: "10km",
-    thumbnailSrc:
-      "https://cdn.jdpower.com/Models/640x480/2017-Audi-S3-PremiumPlus.jpg",
-    dailyPrice: 70,
-    monthlyPrice: 1600,
-    gearType: "Auto",
-    gas: "Petrol",
-  };
-
-  const testCar2: Icar = {
-    name: "Honda City",
-    mileage: "20km",
-    thumbnailSrc:
-      "https://shinewiki.com/wp-content/uploads/2019/11/honda-city.jpg",
-    dailyPrice: 50,
-    monthlyPrice: 1500,
-    gearType: "Auto",
-    gas: "Petrol",
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchTopCars();
   }, []);
 
+  const isEmptyTopCars = !topCars || topCars.length === 0;
+  const cars =
+    (!isEmptyTopCars &&
+      topCars.map((car) => <Car thumbnailSrc={car.thumbnailUrl} {...car} />)) ||
+    [];
+
   return (
     <TopCarsContainer>
       <Title>Explore our top deals</Title>
-      <CarsContainer>
-        <AliceCarousel
-          activeIndex={current}
-          onSlideChange={slideIndexHandler}
-          disableButtonsControls
-          mouseTracking
-          controlsStrategy="responsive"
-          keyboardNavigation={true}
-          items={[
-            <Car {...testCar} />,
-            <Car {...testCar2} />,
-            <Car {...testCar} />,
-            <Car {...testCar2} />,
-            <Car {...testCar} />,
-          ]}
-          responsive={responsive}
-        />
-      </CarsContainer>
+      {isLoading && (
+        <LoadingSection>
+          <MoonLoader loading />
+        </LoadingSection>
+      )}
+      {isEmptyTopCars && !isLoading && <EmptyCars>No Cars to show!</EmptyCars>}
+      {!isEmptyTopCars && !isLoading && (
+        <CarsContainer>
+          <AliceCarousel
+            activeIndex={current}
+            onSlideChange={slideIndexHandler}
+            disableButtonsControls
+            mouseTracking
+            controlsStrategy="responsive"
+            keyboardNavigation={true}
+            items={cars}
+            responsive={responsive}
+          />
+        </CarsContainer>
+      )}
     </TopCarsContainer>
   );
 }
