@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
 import { Icar } from "../../../typings/car";
@@ -6,6 +6,7 @@ import { Car } from "../../components/car";
 import "react-alice-carousel/lib/alice-carousel.css";
 import AliceCarousel, { EventObject } from "react-alice-carousel";
 import { responsive } from "../../components/responsive/carousel";
+import carService from "../../services/carService";
 
 const TopCarsContainer = styled.div`
   ${tw`
@@ -51,6 +52,14 @@ export function TopCars() {
     setCurrent(e.item);
   };
 
+  const fetchTopCars = async () => {
+    const cars = await carService.getCars().catch((err) => {
+      console.log("error:", err);
+    });
+
+    console.log("Cars:", cars);
+  };
+
   const testCar: Icar = {
     name: "Audi S3 Car",
     mileage: "10km",
@@ -72,6 +81,10 @@ export function TopCars() {
     gearType: "Auto",
     gas: "Petrol",
   };
+
+  useEffect(() => {
+    fetchTopCars();
+  }, []);
 
   return (
     <TopCarsContainer>
